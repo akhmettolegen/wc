@@ -3,7 +3,7 @@ package main
 import (
 	"bufio"
 	"fmt"
-	"github.com/akhmettolegen/coding-challenges/wc/file_reader"
+	"github.com/akhmettolegen/coding-challenges/wc/file_elements"
 	"log"
 	"os"
 )
@@ -13,72 +13,118 @@ func main() {
 	out := bufio.NewWriter(os.Stdout)
 	defer out.Flush()
 
-	var command, op1, op2 string
-	_, _ = fmt.Fscanln(in, &command, &op1, &op2)
+	var command, op1, op2, op3, op4 string
+	_, _ = fmt.Fscanln(in, &command, &op1, &op2, &op3, &op4)
 
 	var flag, path string
-	if op2 == "" {
+	if command == ">ccwc" {
+		flag, path = op1, op2
+		if op2 == "" {
+			path = op1
+			flag = "all"
+		}
+	} else if command == ">cat" {
 		path = op1
-	}
-
-	file, err := os.Open(path)
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer file.Close()
-
-	fileReader := file_reader.New(file)
-
-	if command != "ccwc" {
+		flag = op4
+	} else {
 		log.Fatal("invalid command")
 	}
 
 	switch flag {
 	case "-c":
-		bytesCount, err := fileReader.BytesCount()
+		file, err := os.Open(path)
 		if err != nil {
-			log.Fatal(err)
+			log.Fatalf("error while opening file: %v", err)
+		}
+		defer file.Close()
+
+		elements := file_elements.New(file, file_elements.ElementBytes)
+		count, err := elements.Count()
+		if err != nil {
+			log.Fatalf("error while count %s: %v", file_elements.ElementBytes, err)
 		}
 
-		_, _ = fmt.Fprintln(out, bytesCount, path)
+		_, _ = fmt.Fprintln(out, count, path)
 	case "-l":
-		linesCount, err := fileReader.LinesCount()
+		file, err := os.Open(path)
 		if err != nil {
-			log.Fatal(err)
+			log.Fatalf("error while opening file: %v", err)
+		}
+		defer file.Close()
+
+		elements := file_elements.New(file, file_elements.ElementLines)
+		count, err := elements.Count()
+		if err != nil {
+			log.Fatalf("error while count %s: %v", file_elements.ElementLines, err)
 		}
 
-		_, _ = fmt.Fprintln(out, linesCount, path)
+		_, _ = fmt.Fprintln(out, count, path)
 	case "-w":
-		wordsCount, err := fileReader.WordsCount()
+		file, err := os.Open(path)
 		if err != nil {
-			log.Fatal(err)
+			log.Fatalf("error while opening file: %v", err)
+		}
+		defer file.Close()
+
+		elements := file_elements.New(file, file_elements.ElementWords)
+		count, err := elements.Count()
+		if err != nil {
+			log.Fatalf("error while count %s: %v", file_elements.ElementWords, err)
 		}
 
-		_, _ = fmt.Fprintln(out, wordsCount, path)
+		_, _ = fmt.Fprintln(out, count, path)
 	case "-m":
-		charsCount, err := fileReader.CharsCount()
+		file, err := os.Open(path)
 		if err != nil {
-			log.Fatal(err)
+			log.Fatalf("error while opening file: %v", err)
+		}
+		defer file.Close()
+
+		elements := file_elements.New(file, file_elements.ElementRunes)
+		count, err := elements.Count()
+		if err != nil {
+			log.Fatalf("error while count %s: %v", file_elements.ElementRunes, err)
 		}
 
-		_, _ = fmt.Fprintln(out, charsCount, path)
-	case "":
-		bytesCount, err := fileReader.BytesCount()
+		_, _ = fmt.Fprintln(out, count, path)
+	case "all":
+		file, err := os.Open(path)
 		if err != nil {
-			log.Fatal(err)
+			log.Fatalf("error while opening file: %v", err)
+		}
+		defer file.Close()
+
+		elements := file_elements.New(file, file_elements.ElementBytes)
+		bytesC, err := elements.Count()
+		if err != nil {
+			log.Fatalf("error while count %s: %v", file_elements.ElementBytes, err)
 		}
 
-		linesCount, err := fileReader.LinesCount()
+		file, err = os.Open(path)
 		if err != nil {
-			log.Fatal(err)
+			log.Fatalf("error while opening file: %v", err)
+		}
+		defer file.Close()
+
+		elements = file_elements.New(file, file_elements.ElementLines)
+		linesC, err := elements.Count()
+		if err != nil {
+			log.Fatalf("error while count %s: %v", file_elements.ElementLines, err)
 		}
 
-		wordsCount, err := fileReader.WordsCount()
+		file, err = os.Open(path)
 		if err != nil {
-			log.Fatal(err)
+			log.Fatalf("error while opening file: %v", err)
+		}
+		defer file.Close()
+
+		elements = file_elements.New(file, file_elements.ElementWords)
+		wordsC, err := elements.Count()
+		if err != nil {
+			log.Fatalf("error while count %s: %v", file_elements.ElementWords, err)
 		}
 
-		_, _ = fmt.Fprintln(out, bytesCount, linesCount, wordsCount, path)
+		_, _ = fmt.Fprintln(out, bytesC, linesC, wordsC, path)
 	default:
 		log.Fatal("invalid flag")
 	}
