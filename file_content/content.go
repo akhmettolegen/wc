@@ -1,6 +1,9 @@
 package file_content
 
-import "strings"
+import (
+	"errors"
+	"strings"
+)
 
 const (
 	ElementBytes = "bytes"
@@ -33,7 +36,7 @@ func (e *Content) CountElements(element string) (int, error) {
 	case ElementLines:
 		return countLines(e.content), nil
 	default:
-		return 0, nil
+		return 0, errors.New("invalid element")
 	}
 }
 
